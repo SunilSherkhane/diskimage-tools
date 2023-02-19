@@ -9,20 +9,20 @@ Examples:
 	
     Mount a CD/DVD image:
     
-    mount_image FreeBSD-10.1-RELEASE-amd64-disc1.iso cd9660
+    mount_image FreeBSD-13.1-RELEASE-amd64-disc1.iso cd9660
     
     Mount a FreeDOS USB image, with the filesystem on slice one (/dev/md0s1):
     
-    mount_image FreeDOS-1.1-memstick-3-30M.img msdosfs 1
+    mount_image FreeBSD-13.1-RELEASE-amd64-memstick.img msdosfs 1
     
     Mount a FreeDOS floppy disk image with the filesystem on the raw volume
     (no partitions/slices):
     
-    mount_image fdboot.img msdosfs
+    mount_image FreeBSD-13.1.img msdosfs
 
     Mount a UDF ISO image:
     
-    mount_image ubuntu-20.04.2-live-server-amd64.iso udf
+    mount_image FreeBSD-13.1-RELEASE-amd64-disc1.iso udf
 
 EOM
     exit 1
