@@ -1,36 +1,44 @@
 #!/bin/sh -e
 
-if [ $# -lt 3 ]; then
+if [ $# -lt 2 ]; then
     cat << EOM
 
-Usage: $0 msdosfs|cd9660 image-file mount-directory [slice]
+Usage: $0 image-file fs_type [slice]
 
 Examples:
 	
     Mount a CD/DVD image:
     
-	mount_image cd9660 FreeBSD-10.1-RELEASE-amd64-disc1.iso /mnt
-
+    mount_image FreeBSD-10.1-RELEASE-amd64-disc1.iso cd9660
+    
     Mount a FreeDOS USB image, with the filesystem on slice one (/dev/md0s1):
     
-	mount_image msdosfs FreeDOS-1.1-memstick-3-30M.img /mnt 1
+    mount_image FreeDOS-1.1-memstick-3-30M.img msdosfs 1
     
     Mount a FreeDOS floppy disk image with the filesystem on the raw volume
     (no partitions/slices):
     
-	mount_image msdosfs fdboot.img /mnt
+    mount_image fdboot.img msdosfs
+
+    Mount a UDF ISO image:
+    
+    mount_image ubuntu-20.04.2-live-server-amd64.iso udf
 
 EOM
     exit 1
 fi
 
-fs_type=$1
-image=$2
-dir=$3
-if [ $# = 4 ]; then
-    slice="s$4"
+image=$1
+fs_type=$2
+if [ $# = 3 ]; then
+    slice="s$3"
 else
     slice=""
+fi
+
+# Create directory if it doesn't exist
+if [ ! -d "/mnt/diskimage" ]; then
+    mkdir -p /mnt/diskimage
 fi
 
 # Create memory disk from image
@@ -41,18 +49,12 @@ if [ ! -f $image ]; then
     exit 1
 fi
 
-if [ ! -d $dir ]; then
-    printf "$0: Error: $dir: No such directory.\n"
-    exit 1
-fi
-
-if mount_$fs_type /dev/$md$slice $dir; then
-    cat << EOM
-Be sure to unmount using umount_image, not umount, or the memory disk
-will not be detached.
-EOM
-else
+if ! mount -t $fs_type /dev/$md$slice /mnt/diskimage; then
     devnum=`echo $md | cut -c 3-`
     mdconfig -d -u $devnum
 fi
 
+cat << EOM
+Be sure to unmount using umount /mnt/diskimage, or the memory disk
+will not be detached.
+EOM
